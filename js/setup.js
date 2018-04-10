@@ -24,6 +24,7 @@ var getRandomBoolean = function () {
 var createElement = function () {
   var element = {};
   var randomBoolean = getRandomBoolean();
+
   element.name = getRandomArrayElement(randomBoolean ? NAMES : SURNAMES) + ' ' + getRandomArrayElement(randomBoolean ? SURNAMES : NAMES);
   element.coatColor = getRandomArrayElement(COAT_COLORS);
   element.eyesColor = getRandomArrayElement(EYES_COLORS);
@@ -34,8 +35,8 @@ var createElement = function () {
 var createElements = function (number) {
   var elements = [];
 
-  for (var i = 0; i <= number; i++) {
-    elements.push(createElement(elements[i]));
+  for (var i = 0; i < number; i++) {
+    elements.push(createElement());
   }
 
   return elements;
