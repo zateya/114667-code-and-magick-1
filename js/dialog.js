@@ -24,9 +24,7 @@
 
   var hideEmptyCells = function () {
     [].forEach.call(artifatsCells, function (cell) {
-      if (cell.style.outline) {
-        cell.style.outline = '';
-      }
+      cell.style.outline = '';
     });
   };
 
@@ -159,9 +157,7 @@
 
   var closePopup = function () {
     setup.classList.add('hidden');
-    if (setup.style) {
-      setup.style = '';
-    }
+    setup.style = '';
     document.removeEventListener('keydown', onPopupEscPress);
   };
 
