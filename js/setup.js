@@ -1,8 +1,6 @@
 'use strict';
 
 (function () {
-  var NAMES = ['Иван', 'Хуан Себастьян', 'Мария', 'Кристоф', 'Виктор', 'Юлия', 'Люпита', 'Вашингтон'];
-  var SURNAMES = ['да Марья', 'Верон', 'Мирабелла', 'Вальц', 'Онопко', 'Топольницкая', 'Нионго', 'Ирвинг'];
   var COAT_COLORS = ['rgb(101, 137, 164)', 'rgb(241, 43, 107)', 'rgb(146, 100, 161)', 'rgb(56, 159, 117)', 'rgb(215, 210, 55)', 'rgb(0, 0, 0)'];
   var EYES_COLORS = ['black', 'red', 'blue', 'yellow', 'green'];
   var FIREBALL_COLORS = ['#ee4830', '#30a8ee', '#5ce6c0', '#e848d5', '#e6e848'];
@@ -23,37 +21,19 @@
 
   var wizardsFragment = document.createDocumentFragment();
 
-  var createElement = function () {
-    var randomBoolean = window.utils.getRandomBoolean();
-
-    return {
-      name: window.utils.getRandomArrayElement(randomBoolean ? NAMES : SURNAMES) + ' ' + window.utils.getRandomArrayElement(randomBoolean ? SURNAMES : NAMES),
-      coatColor: window.utils.getRandomArrayElement(COAT_COLORS),
-      eyesColor: window.utils.getRandomArrayElement(EYES_COLORS)
-    };
-  };
-
-  var createElements = function (number) {
-    var elements = [];
-
-    for (var i = 0; i < number; i++) {
-      elements.push(createElement());
-    }
-
-    return elements;
-  };
-
   var renderWizard = function (wizard) {
     var wizardElement = similarWizardTemplate.cloneNode(true);
 
     wizardElement.querySelector('.setup-similar-label').textContent = wizard.name;
-    wizardElement.querySelector('.wizard-coat').style.fill = wizard.coatColor;
-    wizardElement.querySelector('.wizard-eyes').style.fill = wizard.eyesColor;
+    wizardElement.querySelector('.wizard-coat').style.fill = wizard.colorCoat;
+    wizardElement.querySelector('.wizard-eyes').style.fill = wizard.colorEyes;
 
     return wizardElement;
   };
 
-  var renderWizards = function (wizards) {
+  var onLoad = function (data) {
+    var wizards = data.slice();
+    wizards.length = WIZARDS_COUNT;
     wizards.forEach(function (wizard) {
       wizardsFragment.appendChild(renderWizard(wizard));
     });
@@ -71,8 +51,8 @@
   setPlayerPartColor(playerFireball, 'backgroundColor', FIREBALL_COLORS, fireballColorInput);
   setPlayerPartColor(playerCoat, 'fill', COAT_COLORS, coatColorInput);
 
-  var data = createElements(WIZARDS_COUNT);
-  renderWizards(data);
-
   setupSimilar.classList.remove('hidden');
+
+
+  window.backend.load(onLoad, window.backend.showError);
 })();
