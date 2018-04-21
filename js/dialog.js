@@ -4,6 +4,7 @@
   var SETUP_MIN_TOP = 0;
 
   var setup = document.querySelector('.setup');
+  var setupForm = document.querySelector('.setup-wizard-form');
   var setupOpen = document.querySelector('.setup-open');
   var setupClose = setup.querySelector('.setup-close');
   var userNameInput = setup.querySelector('.setup-user-name');
@@ -199,4 +200,11 @@
   });
 
   dialogHandle.style.zIndex = '1';
+
+  setupForm.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+    window.backend.upload(new FormData(setupForm), function () {
+      setup.classList.add('hidden');
+    }, window.backend.showError);
+  });
 })();
