@@ -25,7 +25,7 @@
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
 
-    xhr.timeout = TIMEOUT; // 10s
+    xhr.timeout = TIMEOUT;
 
     return xhr;
   };
