@@ -1,33 +1,33 @@
 'use strict';
 
 (function () {
-  var Cloud = {
-    X: 100,
-    Y: 10,
-    WIDTH: 420,
-    HEIGHT: 270,
-    SHADOW_OFFSET: 10,
-    COLOR: 'rgba(255, 255, 255, 1)',
-    SHADOW_COLOR: 'rgba(0, 0, 0, 0.7)',
-    LINE_OFFSET: 10
-  };
-
-  var TextInfo = {
-    FONT: '16px PT Mono',
-    COLOR: 'rgba(0, 0, 0, 1)',
-    GAP: 20
-  };
-
-  var Bar = {
-    WIDTH: 40,
-    GAP: 50,
-    USER_COLOR: 'rgba(255, 0, 0, 1)',
-    PLAYERS_COLOR: 'hsl(240, 50%, 50%)',
-    PLAYERS_MIN_SATURATION: 0,
-    PLAYERS_MAX_SATURATION: 100
-  };
-
   var HISTOGRAM_HEIGHT = 150;
+
+  var cloud = {
+    x: 100,
+    y: 10,
+    width: 420,
+    height: 270,
+    shadowOffset: 10,
+    color: 'rgba(255, 255, 255, 1)',
+    shadowColor: 'rgba(0, 0, 0, 0.7)',
+    lineOffset: 10
+  };
+
+  var textInfo = {
+    font: '16px PT Mono',
+    color: 'rgba(0, 0, 0, 1)',
+    gap: 20
+  };
+
+  var bar = {
+    width: 40,
+    gap: 50,
+    userColor: 'rgba(255, 0, 0, 1)',
+    playersColor: 'hsl(240, 50%, 50%)',
+    playersMinSaturation: 0,
+    playersMaxSaturation: 100
+  };
 
   var getRandomFromRange = function (minValue, maxValue) {
     return Math.random() * (maxValue - minValue) + minValue;
@@ -36,7 +36,7 @@
   var getPlayerBarColor = function (hslColor) {
     var arr = hslColor.substring(4, hslColor.length - 1).split(','); // оставляем в строке только цифры через запятую и преобразуем в массив
 
-    return 'hsl(' + arr[0] + ', ' + getRandomFromRange(Bar.PLAYERS_MIN_SATURATION, Bar.PLAYERS_MAX_SATURATION) + '%, ' + arr[2] + ')';
+    return 'hsl(' + arr[0] + ', ' + getRandomFromRange(bar.playersMinSaturation, bar.playersMaxSaturation) + '%, ' + arr[2] + ')';
   };
 
   var getMaxOfArray = function (numArray) {
@@ -44,7 +44,7 @@
   };
 
   var renderCloud = function (ctx, x, y, width, height, lineOffset) {
-    var offset = lineOffset || Cloud.LINE_OFFSET;
+    var offset = lineOffset || cloud.lineOffset;
 
     ctx.beginPath();
     ctx.moveTo(x, y);
@@ -67,8 +67,8 @@
   };
 
   var renderText = function (ctx, text, x, y, font, color) {
-    ctx.fillStyle = color || TextInfo.COLOR;
-    ctx.font = font || TextInfo.FONT;
+    ctx.fillStyle = color || textInfo.color;
+    ctx.font = font || textInfo.font;
     ctx.fillText(text, x, y);
   };
 
@@ -91,27 +91,27 @@
       return 0;
     });
 
-    ctx.fillStyle = Cloud.SHADOW_COLOR;
-    renderCloud(ctx, Cloud.X + Cloud.SHADOW_OFFSET, Cloud.Y + Cloud.SHADOW_OFFSET, Cloud.WIDTH, Cloud.HEIGHT);
+    ctx.fillStyle = cloud.shadowColor;
+    renderCloud(ctx, cloud.x + cloud.shadowOffset, cloud.y + cloud.shadowOffset, cloud.width, cloud.height);
 
-    ctx.fillStyle = Cloud.COLOR;
-    renderCloud(ctx, Cloud.X, Cloud.Y, Cloud.WIDTH, Cloud.HEIGHT);
+    ctx.fillStyle = cloud.color;
+    renderCloud(ctx, cloud.x, cloud.y, cloud.width, cloud.height);
 
-    renderText(ctx, 'Ура вы победили!', Cloud.X + TextInfo.GAP, Cloud.Y + TextInfo.GAP * 2);
-    renderText(ctx, 'Список результатов:', Cloud.X + TextInfo.GAP, Cloud.Y + TextInfo.GAP * 3);
+    renderText(ctx, 'Ура вы победили!', cloud.x + textInfo.gap, cloud.y + textInfo.gap * 2);
+    renderText(ctx, 'Список результатов:', cloud.x + textInfo.gap, cloud.y + textInfo.gap * 3);
 
     var barStep = HISTOGRAM_HEIGHT / getMaxOfArray(times);
 
-    var histogramX = Cloud.X + (Cloud.WIDTH - Bar.WIDTH * players.length - Bar.GAP * (players.length - 1)) / 2;
-    var histogramY = Cloud.Y + TextInfo.GAP * 4;
+    var histogramX = cloud.x + (cloud.width - bar.width * players.length - bar.gap * (players.length - 1)) / 2;
+    var histogramY = cloud.y + textInfo.gap * 4;
 
     players.forEach(function (player, j) {
-      var barHeight = player.time * barStep - 2 * TextInfo.GAP;
-      var barX = histogramX + j * (Bar.WIDTH + Bar.GAP);
-      var barY = histogramY + HISTOGRAM_HEIGHT - barHeight - TextInfo.GAP;
-      var barColor = player.name === 'Вы' ? Bar.USER_COLOR : getPlayerBarColor(Bar.PLAYERS_COLOR);
-      drawRect(ctx, barX, barY, Bar.WIDTH, barHeight, barColor);
-      renderText(ctx, Math.round(player.time), barX, barY - TextInfo.GAP / 2);
+      var barHeight = player.time * barStep - 2 * textInfo.gap;
+      var barX = histogramX + j * (bar.width + bar.gap);
+      var barY = histogramY + HISTOGRAM_HEIGHT - barHeight - textInfo.gap;
+      var barColor = player.name === 'Вы' ? bar.userColor : getPlayerBarColor(bar.playersColor);
+      drawRect(ctx, barX, barY, bar.width, barHeight, barColor);
+      renderText(ctx, Math.round(player.time), barX, barY - textInfo.gap / 2);
       renderText(ctx, player.name, barX, histogramY + HISTOGRAM_HEIGHT);
     });
   };
