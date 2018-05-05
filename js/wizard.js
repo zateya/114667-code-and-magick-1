@@ -1,33 +1,54 @@
 'use strict';
 
 (function () {
-  var COAT_COLORS = ['rgb(101, 137, 164)', 'rgb(241, 43, 107)', 'rgb(146, 100, 161)', 'rgb(56, 159, 117)', 'rgb(215, 210, 55)', 'rgb(0, 0, 0)'];
-  var EYES_COLORS = ['black', 'red', 'blue', 'yellow', 'green'];
+  var COAT_COLORS = [
+    'rgb(101, 137, 164)',
+    'rgb(241, 43, 107)',
+    'rgb(146, 100, 161)',
+    'rgb(56, 159, 117)',
+    'rgb(215, 210, 55)',
+    'rgb(0, 0, 0)'
+  ];
 
-  var playerSetup = document.querySelector('.setup-player');
-  var playerEyes = playerSetup.querySelector('.wizard-eyes');
-  var playerCoat = playerSetup.querySelector('.wizard-coat');
+  var EYES_COLORS = [
+    'black',
+    'red',
+    'blue',
+    'yellow',
+    'green'
+  ];
 
-  var wizard = {
-    onEyesChange: function (color) {
-      return color;
+  var Wizard = function (data) {
+    this.name = data.name;
+    this.coatColor = data.colorCoat;
+    this.eyesColor = data.colorEyes;
+  };
+
+  Wizard.prototype = {
+    setName: function (name) {
+      if (!name) {
+        throw new Error('Имя не задано');
+      }
+      if (name.length > 25 || name.length < 2) {
+        throw new Error('Недопустимое значение имени мага: ' + name);
+      }
+      this.name = name;
+      this.onChange(this);
+      return name;
     },
-    onCoatChange: function (color) {
-      return color;
+    changeCoatColor: function () {
+      var newColor = window.utils.getRandomArrayElement(COAT_COLORS);
+      this.coatColor = newColor;
+      this.onChange(this);
+      return newColor;
+    },
+    changeEyesColor: function () {
+      var newColor = window.utils.getRandomArrayElement(EYES_COLORS);
+      this.eyesColor = newColor;
+      this.onChange(this);
+      return newColor;
     }
   };
 
-  playerCoat.addEventListener('click', function () {
-    var newColor = window.utils.getRandomArrayElement(COAT_COLORS);
-    playerCoat.style.fill = newColor;
-    wizard.onCoatChange(newColor);
-  });
-
-  playerEyes.addEventListener('click', function () {
-    var newColor = window.utils.getRandomArrayElement(EYES_COLORS);
-    playerEyes.style.fill = newColor;
-    wizard.onEyesChange(newColor);
-  });
-
-  window.wizard = wizard;
+  window.Wizard = Wizard;
 })();

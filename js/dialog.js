@@ -1,19 +1,23 @@
 'use strict';
 
 (function () {
-  var SETUP_MIN_TOP = 0;
-
+  var setupParam = {
+    WIDTH: 800,
+    TOP: 80
+  };
   var setup = document.querySelector('.setup');
   var setupForm = document.querySelector('.setup-wizard-form');
   var setupOpen = document.querySelector('.setup-open');
   var setupClose = setup.querySelector('.setup-close');
   var userNameInput = setup.querySelector('.setup-user-name');
-  var dialogHandle = setup.querySelector('.setup-user-pic');
+  var dialogHandle = setup.querySelector('.upload');
 
   var shopElement = document.querySelector('.setup-artifacts-shop');
   var artifactsElement = document.querySelector('.setup-artifacts');
   var artifatsCells = document.querySelectorAll('.setup-artifacts .setup-artifacts-cell');
   var draggedItem = null;
+
+  setupParam.HALF_WIDTH = setupParam.WIDTH / 2;
 
   var showEmptyCells = function () {
     [].forEach.call(artifatsCells, function (cell) {
@@ -78,72 +82,73 @@
     evt.preventDefault();
   });
 
-  var setupDefaultTop = parseInt(window.getComputedStyle(setup, null).getPropertyValue('top'), 10);
-  var setupHalfWidth = parseInt(window.getComputedStyle(setup, null).getPropertyValue('width'), 10) / 2;
-
-  var getDragArea = function () {
-    return {
-      xMin: setupHalfWidth,
-      xMax: document.body.offsetWidth - setupHalfWidth,
-      yMin: SETUP_MIN_TOP,
-      yMax: setupDefaultTop
-    };
+  var Rect = function (left, top, right, bottom) {
+    this.left = left;
+    this.top = top;
+    this.right = right;
+    this.bottom = bottom;
   };
 
-  dialogHandle.addEventListener('mousedown', function (evt) {
+  var Coordinate = function (x, y, constraints) {
+    this.x = x;
+    this.y = y;
+    this._constraints = constraints;
+  };
+
+  Coordinate.prototype = {
+    setX: function (x) {
+      if (x >= this._constraints.left && x <= this._constraints.right) {
+        this.x = x;
+      }
+    },
+    setY: function (y) {
+      if (y >= this._constraints.top && y <= this._constraints.bottom) {
+        this.y = y;
+      }
+    }
+  };
+
+  var onDialogHandleDragStart = function (evt) {
     evt.preventDefault();
+    var setupCoord = new Coordinate(setup.offsetLeft, setup.offsetTop, new Rect(setupParam.HALF_WIDTH, 0, document.body.offsetWidth - setupParam.HALF_WIDTH, setupParam.TOP));
+    var cursorCoord = new Coordinate(evt.clientX, evt.clientY);
+    var moved = false;
 
-    var startCoords = {
-      x: evt.clientX,
-      y: evt.clientY
-    };
-
-    var dragArea = getDragArea();
-
-    var onMouseMove = function (moveEvt) {
+    var onDialogHandleMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
+      moved = true;
 
-      var shift = {
-        x: startCoords.x - moveEvt.clientX,
-        y: startCoords.y - moveEvt.clientY
-      };
+      var shift = new Coordinate(cursorCoord.x - moveEvt.clientX, cursorCoord.y - moveEvt.clientY);
+      cursorCoord.x = moveEvt.clientX;
+      cursorCoord.y = moveEvt.clientY;
 
-      startCoords = {
-        x: moveEvt.clientX,
-        y: moveEvt.clientY
-      };
+      setupCoord.setX(setup.offsetLeft - shift.x);
+      setupCoord.setY(setup.offsetTop - shift.y);
 
-      var currentCoords = {
-        x: setup.offsetLeft - shift.x,
-        y: setup.offsetTop - shift.y
-      };
-
-      if (currentCoords.x < dragArea.xMin) {
-        currentCoords.x = dragArea.xMin;
-      } else if (currentCoords.x > dragArea.xMax) {
-        currentCoords.x = dragArea.xMax;
-      }
-
-      if (currentCoords.y < dragArea.yMin) {
-        currentCoords.y = dragArea.yMin;
-      } else if (currentCoords.y > dragArea.yMax) {
-        currentCoords.y = dragArea.yMax;
-      }
-
-      setup.style.top = currentCoords.y + 'px';
-      setup.style.left = currentCoords.x + 'px';
+      setup.style.left = setupCoord.x + 'px';
+      setup.style.top = setupCoord.y + 'px';
     };
 
-    var onMouseUp = function (upEvt) {
+    var onDialogHandleMouseUp = function (upEvt) {
       upEvt.preventDefault();
+      document.removeEventListener('mousemove', onDialogHandleMouseMove);
+      document.removeEventListener('mouseup', onDialogHandleMouseUp);
 
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
+      if (moved) {
+        var onClickPreventDefault = function (clickEvt) {
+          clickEvt.preventDefault();
+          moved = false;
+          dialogHandle.removeEventListener('click', onClickPreventDefault);
+        };
+        dialogHandle.addEventListener('click', onClickPreventDefault);
+      }
     };
 
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
+    document.addEventListener('mousemove', onDialogHandleMouseMove);
+    document.addEventListener('mouseup', onDialogHandleMouseUp);
+  };
+
+  dialogHandle.addEventListener('dragstart', onDialogHandleDragStart);
 
   var onPopupEscPress = function (evt) {
     if (evt.target !== userNameInput) {
@@ -198,8 +203,6 @@
       target.setCustomValidity('');
     }
   });
-
-  dialogHandle.style.zIndex = '1';
 
   setupForm.addEventListener('submit', function (evt) {
     evt.preventDefault();
